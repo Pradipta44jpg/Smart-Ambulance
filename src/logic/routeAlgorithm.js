@@ -27,3 +27,16 @@ export function findBestRoute(routes) {
     eta: calculateETA(bestRoute),
   };
 }
+export function getRouteAnalysis(routes) {
+  const analyzedRoutes = routes.map((route) => ({
+    ...route,
+    eta: calculateETA(route),
+  }));
+
+  const recommendedRoute = findBestRoute(routes);
+
+  return {
+    routes: analyzedRoutes,
+    recommendedRoute,
+  };
+}
