@@ -1,0 +1,149 @@
+.splash-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 30%, #1a0f16 0%, #05070d 60%);
+  padding: 24px;
+}
+
+.splash-card {
+  width: 100%;
+  max-width: 640px;
+  background: #0b0f1a;
+  border: 1px solid #1e2a3f;
+  border-radius: 24px;
+  padding: 48px 40px 32px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.splash-logo {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 24px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #f43f5e, #a855f7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.splash-logo-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 3px solid #0b0f1a;
+}
+
+.splash-title {
+  font-size: 42px;
+  font-weight: 900;
+  color: white;
+  margin: 0 0 8px;
+}
+
+.splash-title span {
+  color: #22c55e;
+}
+
+.splash-subtitle {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin: 0 0 32px;
+}
+
+.splash-quote {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 28px;
+}
+
+.splash-quote-tag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #4ade80;
+  margin-bottom: 14px;
+}
+
+.splash-quote p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #cbd5e1;
+  margin: 0;
+}
+
+.splash-quote strong {
+  color: #4ade80;
+}
+
+.splash-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.splash-countdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #94a3b8;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  padding: 10px 16px;
+  border-radius: 12px;
+}
+
+.splash-countdown svg {
+  color: #4ade80;
+}
+
+.splash-countdown strong {
+  color: white;
+}
+
+.splash-proceed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.splash-proceed:hover {
+  opacity: 0.92;
+}
+
+.splash-copyright {
+  margin-top: 32px;
+  font-size: 12px;
+  color: #475569;
+  font-family: monospace;
+}

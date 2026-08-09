@@ -218,3 +218,105 @@
   background: #2563eb;
   color: white;
 }
+
+/* ---- Info bar ---- */
+.corridor-infobar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 14px;
+  background: #0f172a;
+  border: 1px solid #1e2a3f;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+.corridor-infobar > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.corridor-infobar span {
+  font-size: 10px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.corridor-infobar strong {
+  font-size: 14px;
+  color: #e2e8f0;
+  font-weight: 700;
+}
+
+.tone-amber { color: #facc15 !important; }
+.tone-green { color: #4ade80 !important; }
+
+.pill {
+  display: inline-block;
+  width: fit-content;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px !important;
+}
+
+.pill-red { background: #450a0a; color: #f87171 !important; }
+.pill-blue { background: #1e3a8a; color: #93c5fd !important; }
+
+/* ---- Map body / layer controls ---- */
+.corridor-map-body {
+  position: relative;
+}
+
+.corridor-layer-controls {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.layer-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #1e2a3f;
+  background: rgba(15, 23, 42, 0.9);
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.layer-btn:hover {
+  color: white;
+  border-color: #334155;
+}
+
+.corridor-route-base {
+  stroke: #1e293b;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.ambulance-tag {
+  fill: #0f172a;
+  stroke: #334155;
+  stroke-width: 1;
+}
+
+.ambulance-tag-text {
+  fill: #4ade80;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.corridor-btn.demo {
+  background: linear-gradient(135deg, #ea580c, #dc2626);
+  border-color: transparent;
+  color: white;
+}

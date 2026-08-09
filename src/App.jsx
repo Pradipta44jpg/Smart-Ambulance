@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { routes } from "./logic/routeData";
 import { getRouteAnalysis } from "./logic/routeAlgorithm";
 import {
@@ -11,12 +11,33 @@ import {
   Clock,
   AlertTriangle,
   User,
+  Navigation,
+  Route as RouteIcon,
+  Radio,
+  FileText,
+  Settings as SettingsIcon,
 } from "lucide-react";
 import LiveCorridorMap from "./LiveCorridorMap";
 import MultiRouteEvaluation from "./MultiRouteEvaluation";
+import TrafficSignals from "./TrafficSignals";
+import WelcomeSplash from "./WelcomeSplash";
 import "./App.css";
 
+const NAV_ITEMS = [
+  { id: "dashboard", label: "Dashboard", Icon: Activity },
+  { id: "ambulances", label: "Ambulances", Icon: Ambulance },
+  { id: "liveTracking", label: "Live Tracking", Icon: Navigation },
+  { id: "routeAnalysis", label: "Route Analysis", Icon: RouteIcon },
+  { id: "signals", label: "Signals", Icon: Radio },
+  { id: "hospitals", label: "Hospitals", Icon: Hospital },
+  { id: "alerts", label: "Alerts", Icon: AlertTriangle },
+  { id: "reports", label: "Reports", Icon: FileText },
+  { id: "settings", label: "Settings", Icon: SettingsIcon },
+];
+
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+  const [activeNav, setActiveNav] = useState("dashboard");
   const [currentRoutes, setCurrentRoutes] = useState(routes);
   const [signalPriority, setSignalPriority] = useState(false);
   const [selectedHospital, setSelectedHospital] = useState(
@@ -53,6 +74,11 @@ function App() {
     setStage("reserved");
   };
   const acceptAmbulance = () => setStage("accepted");
+  const chooseRoute = (routeId) => {
+    setSelectedRouteId(routeId);
+    if (stage === "assigned") setStage("enroute");
+    setActiveNav("liveTracking");
+  };
   const resetEmergency = () => {
     setStage("idle");
     setSignalPriority(false);
@@ -68,7 +94,83 @@ function App() {
     accepted: "Patient Received",
   }[stage];
 
+  // ---- 1-click full hackathon demo: walks the whole story automatically ----
+  const [demoRunning, setDemoRunning] = useState(false);
+  const demoTimers = useRef([]);
+
+  const clearDemoTimers = () => {
+    demoTimers.current.forEach(clearTimeout);
+    demoTimers.current = [];
+  };
+
+  const stopDemo = () => {
+    clearDemoTimers();
+    setDemoRunning(false);
+  };
+
+  const runFullDemo = () => {
+    clearDemoTimers();
+    setDemoRunning(true);
+
+    // Reset everything to a clean starting point
+    setStage("idle");
+    setSignalPriority(false);
+    setBeds(12);
+    setRole("user");
+    setActiveNav("dashboard");
+
+    const schedule = (fn, delay) => {
+      demoTimers.current.push(setTimeout(fn, delay));
+    };
+
+    // 1. User requests an ambulance
+    schedule(() => setStage("assigned"), 1200);
+
+    // 2. Switch to Driver + show route comparison
+    schedule(() => {
+      setRole("driver");
+      setActiveNav("routeAnalysis");
+    }, 3200);
+
+    // 3. Start navigation and jump to Live Tracking (auto-plays the corridor map)
+    schedule(() => {
+      setStage("enroute");
+      setActiveNav("liveTracking");
+    }, 6200);
+
+    // 4. Show signal priority kicking in
+    schedule(() => {
+      setActiveNav("signals");
+      setSignalPriority(true);
+    }, 10200);
+
+    // 5. Ambulance arrives, switch to Hospital role
+    schedule(() => {
+      setStage("arrived");
+      setRole("hospital");
+      setActiveNav("dashboard");
+    }, 13200);
+
+    // 6. Reserve bed
+    schedule(() => {
+      setBeds((b) => Math.max(0, b - 1));
+      setStage("reserved");
+    }, 15200);
+
+    // 7. Accept ambulance — story complete
+    schedule(() => {
+      setStage("accepted");
+      setDemoRunning(false);
+    }, 17200);
+  };
+
   return (
+    <>
+      {showSplash && (
+        <WelcomeSplash onProceed={() => setShowSplash(false)} redirectSeconds={5} />
+      )}
+
+      {!showSplash && (
     <div className="app">
       {/* Sidebar */}
       <aside className="sidebar">
@@ -130,26 +232,17 @@ function App() {
         </div>
 
         <nav>
-          <div className="nav-item active">
-            <Activity size={20} />
-            Dashboard
-          </div>
-          <div className="nav-item">
-            <Ambulance size={20} />
-            Ambulances
-          </div>
-          <div className="nav-item">
-            <Hospital size={20} />
-            Hospitals
-          </div>
-          <div className="nav-item">
-            <MapPin size={20} />
-            Traffic
-          </div>
-          <div className="nav-item">
-            <Siren size={20} />
-            Emergency
-          </div>
+          {NAV_ITEMS.map(({ id, label, Icon }) => (
+            <div
+              key={id}
+              className={activeNav === id ? "nav-item active" : "nav-item"}
+              onClick={() => setActiveNav(id)}
+              style={{ cursor: "pointer" }}
+            >
+              <Icon size={20} />
+              {label}
+            </div>
+          ))}
         </nav>
 
         <div className="system-status">
@@ -166,16 +259,23 @@ function App() {
         <header className="topbar">
           <div>
             <p className="welcome">Emergency Management</p>
-            <h1>Smart Hospital Dashboard</h1>
+            <h1>{NAV_ITEMS.find((n) => n.id === activeNav)?.label || "Dashboard"}</h1>
           </div>
 
           <div className="top-status">
             <div className="live-dot"></div>
             Live Monitoring
           </div>
+
+          <button
+            className="view-button demo-button"
+            onClick={demoRunning ? stopDemo : runFullDemo}
+          >
+            {demoRunning ? "⏹ Stop Demo" : "🚀 Run Full Demo"}
+          </button>
         </header>
 
-        {/* Statistics */}
+        {/* Statistics — always visible */}
         <section className="stats-grid">
           <div className="stat-card">
             <div className="stat-icon ambulance-icon">
@@ -223,7 +323,7 @@ function App() {
         </section>
 
         {/* ============ USER ROLE ============ */}
-        {role === "user" && (
+        {activeNav === "dashboard" && role === "user" && (
           <section className="dashboard-grid">
             <div className="panel emergency-panel">
               <div className="panel-header">
@@ -286,14 +386,13 @@ function App() {
         )}
 
         {/* ============ DRIVER ROLE ============ */}
-        {role === "driver" && (
+        {activeNav === "dashboard" && role === "driver" && (
           <>
             <MultiRouteEvaluation
               routes={analyzedRoutes}
               recommendedRoute={recommendedRoute}
               selectedRouteId={selectedRouteId || recommendedRoute.id}
-              onSelect={setSelectedRouteId}
-            />
+              onSelect={chooseRoute}            />
 
           <section className="dashboard-grid">
             {/* Active Emergency */}
@@ -395,23 +494,6 @@ function App() {
               </div>
             </div>
 
-            {/* Live green-corridor simulation */}
-            {emergencyActive && (
-              <div className="panel" style={{ gridColumn: "1 / -1" }}>
-                <div className="panel-header">
-                  <div>
-                    <h2>Live Corridor Simulation</h2>
-                    <p>Ambulance movement with automated signal priority</p>
-                  </div>
-                </div>
-                <LiveCorridorMap
-                  distanceKm={recommendedRoute.distance}
-                  etaMin={recommendedRoute.eta}
-                  to={selectedHospital}
-                />
-              </div>
-            )}
-
             {/* Traffic */}
             <div className="panel">
               <div className="panel-header">
@@ -454,7 +536,7 @@ function App() {
           </section>
           </>
         )}
-        {role === "hospital" && (
+        {activeNav === "dashboard" && role === "hospital" && (
           <section className="dashboard-grid">
             <div className="panel emergency-panel">
               <div className="panel-header">
@@ -517,49 +599,51 @@ function App() {
           </section>
         )}
 
-        {/* Hospital Status table — visible for every role */}
-        <section className="panel hospital-panel">
-          <div className="panel-header">
-            <div>
-              <h2>Hospital Availability</h2>
-              <p>Live emergency resource status</p>
-            </div>
-            <button className="view-button">View All</button>
-          </div>
-
-          <div className="hospital-table">
-            <div className="table-row table-heading">
-              <span>Hospital</span>
-              <span>Emergency</span>
-              <span>Beds</span>
-              <span>Status</span>
+        {/* Hospital Status table — dashboard overview + dedicated Hospitals page */}
+        {(activeNav === "dashboard" || activeNav === "hospitals") && (
+          <section className="panel hospital-panel">
+            <div className="panel-header">
+              <div>
+                <h2>Hospital Availability</h2>
+                <p>Live emergency resource status</p>
+              </div>
+              <button className="view-button">View All</button>
             </div>
 
-            <div className="table-row">
-              <span>City General Hospital</span>
-              <span>Available</span>
-              <span>{selectedHospital === "City General Hospital" ? beds : 12}</span>
-              <span className="available">ONLINE</span>
-            </div>
+            <div className="hospital-table">
+              <div className="table-row table-heading">
+                <span>Hospital</span>
+                <span>Emergency</span>
+                <span>Beds</span>
+                <span>Status</span>
+              </div>
 
-            <div className="table-row">
-              <span>Metro Care Hospital</span>
-              <span>Available</span>
-              <span>{selectedHospital === "Metro Care Hospital" ? beds : 8}</span>
-              <span className="available">ONLINE</span>
-            </div>
+              <div className="table-row">
+                <span>City General Hospital</span>
+                <span>Available</span>
+                <span>{selectedHospital === "City General Hospital" ? beds : 12}</span>
+                <span className="available">ONLINE</span>
+              </div>
 
-            <div className="table-row">
-              <span>Central Medical Center</span>
-              <span>Busy</span>
-              <span>04</span>
-              <span className="busy">BUSY</span>
-            </div>
-          </div>
-        </section>
+              <div className="table-row">
+                <span>Metro Care Hospital</span>
+                <span>Available</span>
+                <span>{selectedHospital === "Metro Care Hospital" ? beds : 8}</span>
+                <span className="available">ONLINE</span>
+              </div>
 
-        {/* Alert — driver + hospital only, once emergency is live */}
-        {emergencyActive && role !== "user" && (
+              <div className="table-row">
+                <span>Central Medical Center</span>
+                <span>Busy</span>
+                <span>04</span>
+                <span className="busy">BUSY</span>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Alert — dashboard overview, once emergency is live */}
+        {activeNav === "dashboard" && emergencyActive && (
           <div className="alert">
             <AlertTriangle size={22} />
             <div>
@@ -579,8 +663,144 @@ function App() {
             </div>
           </div>
         )}
+
+        {/* ============ LIVE TRACKING PAGE ============ */}
+        {activeNav === "liveTracking" && (
+          <section className="dashboard-grid">
+            <div className="panel" style={{ gridColumn: "1 / -1" }}>
+              <div className="panel-header">
+                <div>
+                  <h2>Live Corridor Simulation</h2>
+                  <p>Ambulance movement with automated signal priority</p>
+                </div>
+              </div>
+              {emergencyActive ? (
+                <LiveCorridorMap
+                  distanceKm={recommendedRoute.distance}
+                  etaMin={recommendedRoute.eta}
+                  to={selectedHospital}
+                  autoPlay={demoRunning}
+                />
+              ) : (
+                <div className="empty-state">
+                  <p>No ambulance is currently en route.</p>
+                  <button className="view-button" onClick={requestAmbulance}>
+                    Simulate Emergency
+                  </button>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* ============ ROUTE ANALYSIS PAGE ============ */}
+        {activeNav === "routeAnalysis" && (
+          <section className="dashboard-grid">
+            <div style={{ gridColumn: "1 / -1" }}>
+              <MultiRouteEvaluation
+                routes={analyzedRoutes}
+                recommendedRoute={recommendedRoute}
+                selectedRouteId={selectedRouteId || recommendedRoute.id}
+                onSelect={chooseRoute}
+              />
+            </div>
+          </section>
+        )}
+
+        {/* ============ SIGNALS PAGE ============ */}
+        {activeNav === "signals" && (
+          <section className="dashboard-grid">
+            <div style={{ gridColumn: "1 / -1" }}>
+              <TrafficSignals
+                signalPriority={signalPriority}
+                onToggleAutoPriority={setSignalPriority}
+                nextSignalLabel="Junction 2 (0.4 km)"
+                onExtendGreen={() => setSignalPriority(true)}
+              />
+            </div>
+          </section>
+        )}
+
+        {/* ============ AMBULANCES PAGE ============ */}
+        {activeNav === "ambulances" && (
+          <section className="dashboard-grid">
+            <div className="panel emergency-panel" style={{ gridColumn: "1 / -1" }}>
+              <div className="panel-header">
+                <div>
+                  <h2>Fleet Status</h2>
+                  <p>Ambulances currently connected to SmartCare</p>
+                </div>
+              </div>
+              <div className="ambulance-info">
+                <div className="ambulance-title">
+                  <div className="ambulance-circle">
+                    <Ambulance size={26} />
+                  </div>
+                  <div>
+                    <h3>AMB-104</h3>
+                    <p>{stageLabel}</p>
+                  </div>
+                </div>
+                <p style={{ color: "#64748b", fontSize: 13 }}>
+                  11 other ambulances are on standby across the network.
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ============ ALERTS PAGE ============ */}
+        {activeNav === "alerts" && (
+          <section className="dashboard-grid">
+            <div style={{ gridColumn: "1 / -1" }}>
+              {emergencyActive ? (
+                <div className="alert">
+                  <AlertTriangle size={22} />
+                  <div>
+                    <strong>Emergency Alert</strong>
+                    <p>
+                      AMB-104 has requested traffic priority on {recommendedRoute.name}.
+                      {signalPriority
+                        ? " Traffic signals are being prioritized."
+                        : " Traffic signal coordination required."}
+                    </p>
+                    <button
+                      className="view-button"
+                      onClick={() => setSignalPriority(!signalPriority)}
+                    >
+                      {signalPriority ? "Signal Priority Active" : "Request Signal Priority"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="panel">
+                  <p style={{ color: "#64748b" }}>No active alerts right now.</p>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* ============ REPORTS / SETTINGS PLACEHOLDERS ============ */}
+        {(activeNav === "reports" || activeNav === "settings") && (
+          <section className="dashboard-grid">
+            <div className="panel" style={{ gridColumn: "1 / -1" }}>
+              <div className="panel-header">
+                <div>
+                  <h2>{activeNav === "reports" ? "Reports" : "Settings"}</h2>
+                  <p>Coming soon</p>
+                </div>
+              </div>
+              <p style={{ color: "#64748b" }}>
+                This section isn't built yet — happy to help you design it whenever you're ready.
+              </p>
+            </div>
+          </section>
+        )}
       </main>
     </div>
+      )}
+    </>
   );
 }
 

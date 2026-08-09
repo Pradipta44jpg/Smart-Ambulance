@@ -1,11 +1,16 @@
-import { useState } from "react";
-import { Zap, MapPin } from "lucide-react";
+import { Zap, MapPin, ArrowRight } from "lucide-react";
 import "./MultiRouteEvaluation.css";
 
 function trafficTone(pct) {
   if (pct < 30) return { label: "Clear", cls: "tone-clear" };
   if (pct < 60) return { label: "Medium", cls: "tone-medium" };
   return { label: "Heavy", cls: "tone-heavy" };
+}
+
+function roadConditionFor(pct) {
+  if (pct < 30) return { label: "Good", cls: "tone-clear" };
+  if (pct < 60) return { label: "Moderate", cls: "tone-medium" };
+  return { label: "Poor", cls: "tone-heavy" };
 }
 
 export default function MultiRouteEvaluation({
@@ -34,6 +39,7 @@ export default function MultiRouteEvaluation({
       <div className="route-eval-grid">
         {routes.map((route) => {
           const traffic = trafficTone(route.traffic);
+          const roadCondition = roadConditionFor(route.traffic);
           const isRecommended = route.id === recommendedRoute.id;
           const isSelected = route.id === selectedRouteId;
           return (
@@ -51,6 +57,7 @@ export default function MultiRouteEvaluation({
                 </span>
               )}
               <h3>{route.name}</h3>
+              {route.via && <p className="route-eval-via">Via {route.via}</p>}
               <div className="route-eval-stats">
                 <div>
                   <span>Distance</span>
@@ -68,12 +75,17 @@ export default function MultiRouteEvaluation({
                   <span>ETA</span>
                   <strong>{route.eta} min</strong>
                 </div>
+                <div>
+                  <span>Road Condition</span>
+                  <strong className={roadCondition.cls}>{roadCondition.label}</strong>
+                </div>
               </div>
               <button
                 className={isSelected ? "route-eval-select selected" : "route-eval-select"}
                 onClick={() => onSelect(route.id)}
               >
-                {isSelected ? "Selected for corridor" : "Select this route"}
+                {isSelected ? "Selected for corridor" : `Choose ${route.name}`}
+                {!isSelected && <ArrowRight size={14} />}
               </button>
             </div>
           );
