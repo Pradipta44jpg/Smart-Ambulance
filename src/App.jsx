@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { routes } from "./logic/routeData";
+import { getRouteAnalysis } from "./logic/routeAlgorithm";
 import {
   Ambulance,
   Hospital,
@@ -7,10 +10,64 @@ import {
   MapPin,
   Clock,
   AlertTriangle,
+  User,
 } from "lucide-react";
+import LiveCorridorMap from "./LiveCorridorMap";
+import MultiRouteEvaluation from "./MultiRouteEvaluation";
 import "./App.css";
 
 function App() {
+  const [currentRoutes, setCurrentRoutes] = useState(routes);
+  const [signalPriority, setSignalPriority] = useState(false);
+  const [selectedHospital, setSelectedHospital] = useState(
+    "City General Hospital"
+  );
+  const [role, setRole] = useState("driver");
+
+  // ---- Multi-route evaluation ----
+  const [selectedRouteId, setSelectedRouteId] = useState(null);
+
+  // ---- Connected emergency flow ----
+  // stage: idle -> assigned -> enroute -> arrived -> reserved -> accepted
+  const [stage, setStage] = useState("idle");
+  const [beds, setBeds] = useState(12);
+
+  const emergencyActive = stage !== "idle";
+
+  const { routes: analyzedRoutes, recommendedRoute } =
+    getRouteAnalysis(currentRoutes);
+
+  const simulateTrafficUpdate = () => {
+    const updatedRoutes = currentRoutes.map((route) => ({
+      ...route,
+      traffic: Math.floor(Math.random() * 100),
+    }));
+    setCurrentRoutes(updatedRoutes);
+  };
+
+  const requestAmbulance = () => setStage("assigned");
+  const startNavigation = () => setStage("enroute");
+  const markArrived = () => setStage("arrived");
+  const reserveBed = () => {
+    setBeds((b) => Math.max(0, b - 1));
+    setStage("reserved");
+  };
+  const acceptAmbulance = () => setStage("accepted");
+  const resetEmergency = () => {
+    setStage("idle");
+    setSignalPriority(false);
+    setBeds(12);
+  };
+
+  const stageLabel = {
+    idle: "Standby",
+    assigned: "Ambulance Assigned",
+    enroute: "Emergency Response Active",
+    arrived: "Arrived at Hospital",
+    reserved: "Bed Reserved",
+    accepted: "Patient Received",
+  }[stage];
+
   return (
     <div className="app">
       {/* Sidebar */}
@@ -20,9 +77,56 @@ function App() {
             <Ambulance size={25} />
           </div>
           <div>
-            <h2>SmartCare</h2>
+            <h1>SmartCare</h1>
             <span>Emergency System</span>
           </div>
+        </div>
+        <h5>
+          {role === "user"
+            ? "Emergency User Dashboard"
+            : role === "driver"
+            ? "Ambulance Driver Dashboard"
+            : "Hospital Management Dashboard"}
+        </h5>
+        <div className="role-list">
+          <button
+            className={role === "user" ? "role-item active" : "role-item"}
+            onClick={() => setRole("user")}
+          >
+            <span className="role-avatar">
+              <User size={16} />
+            </span>
+            <span className="role-text">
+              <strong>User</strong>
+              <small>Operator</small>
+            </span>
+          </button>
+
+          <button
+            className={role === "driver" ? "role-item active" : "role-item"}
+            onClick={() => setRole("driver")}
+          >
+            <span className="role-avatar">
+              <Ambulance size={16} />
+            </span>
+            <span className="role-text">
+              <strong>Driver</strong>
+              <small>On Duty</small>
+            </span>
+          </button>
+
+          <button
+            className={role === "hospital" ? "role-item active" : "role-item"}
+            onClick={() => setRole("hospital")}
+          >
+            <span className="role-avatar">
+              <Hospital size={16} />
+            </span>
+            <span className="role-text">
+              <strong>Hospital</strong>
+              <small>ER Desk</small>
+            </span>
+          </button>
         </div>
 
         <nav>
@@ -30,22 +134,18 @@ function App() {
             <Activity size={20} />
             Dashboard
           </div>
-
           <div className="nav-item">
             <Ambulance size={20} />
             Ambulances
           </div>
-
           <div className="nav-item">
             <Hospital size={20} />
             Hospitals
           </div>
-
           <div className="nav-item">
             <MapPin size={20} />
             Traffic
           </div>
-
           <div className="nav-item">
             <Siren size={20} />
             Emergency
@@ -105,129 +205,326 @@ function App() {
             </div>
             <div>
               <span>Active Emergencies</span>
-              <h2>05</h2>
-              <small>2 high priority</small>
+              <h2>{emergencyActive ? "06" : "05"}</h2>
+              <small>{emergencyActive ? "3 high priority" : "2 high priority"}</small>
             </div>
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon bed-icon">
+            <div className="stat-icon emergency-icon">
               <Bed />
             </div>
             <div>
               <span>Available Beds</span>
-              <h2>34</h2>
-              <small>Across all hospitals</small>
+              <h2>{beds}</h2>
+              <small>{selectedHospital}</small>
             </div>
           </div>
         </section>
 
-        {/* Dashboard Content */}
-        <section className="dashboard-grid">
-
-          {/* Active Emergency */}
-          <div className="panel emergency-panel">
-            <div className="panel-header">
-              <div>
-                <h2>Active Emergency</h2>
-                <p>Real-time ambulance monitoring</p>
-              </div>
-
-              <span className="priority-badge">
-                HIGH PRIORITY
-              </span>
-            </div>
-
-            <div className="ambulance-info">
-              <div className="ambulance-title">
-                <div className="ambulance-circle">
-                  <Ambulance size={26} />
-                </div>
-
+        {/* ============ USER ROLE ============ */}
+        {role === "user" && (
+          <section className="dashboard-grid">
+            <div className="panel emergency-panel">
+              <div className="panel-header">
                 <div>
-                  <h3>AMB-104</h3>
-                  <p>Emergency Ambulance</p>
+                  <h2>Emergency Assistance</h2>
+                  <p>Request an ambulance to your location</p>
                 </div>
+                {emergencyActive && (
+                  <span className="priority-badge">{stageLabel}</span>
+                )}
               </div>
 
-              <div className="route">
-                <div className="route-point">
-                  <MapPin size={18} />
-                  <div>
-                    <span>Current Location</span>
-                    <strong>Park Street</strong>
+              <div className="ambulance-info">
+                <div className="route">
+                  <div className="route-point">
+                    <MapPin size={18} />
+                    <div>
+                      <span>Pickup Location</span>
+                      <strong>Current Location</strong>
+                    </div>
+                  </div>
+
+                  <div className="route-line"></div>
+
+                  <div className="route-point">
+                    <Hospital size={18} />
+                    <div>
+                      <span>Hospital</span>
+                      <strong>{selectedHospital}</strong>
+                    </div>
                   </div>
                 </div>
 
-                <div className="route-line"></div>
+                {stage === "idle" ? (
+                  <button className="view-button" onClick={requestAmbulance}>
+                    🚨 Request Ambulance
+                  </button>
+                ) : (
+                  <>
+                    <div className="eta-box">
+                      <Clock size={20} />
+                      <div>
+                        <span>Estimated Arrival</span>
+                        <strong>
+                          {["arrived", "reserved", "accepted"].includes(stage)
+                            ? "Arrived"
+                            : `${recommendedRoute.eta} minutes`}
+                        </strong>
+                        <span>Route: {recommendedRoute.name}</span>
+                      </div>
+                    </div>
+                    <button className="view-button" onClick={resetEmergency}>
+                      Reset demo
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
 
-                <div className="route-point">
-                  <Hospital size={18} />
+        {/* ============ DRIVER ROLE ============ */}
+        {role === "driver" && (
+          <>
+            <MultiRouteEvaluation
+              routes={analyzedRoutes}
+              recommendedRoute={recommendedRoute}
+              selectedRouteId={selectedRouteId || recommendedRoute.id}
+              onSelect={setSelectedRouteId}
+            />
+
+          <section className="dashboard-grid">
+            {/* Active Emergency */}
+            <div className="panel emergency-panel">
+              <div className="panel-header">
+                <div>
+                  <h2>Active Emergency</h2>
+                  <p>Real-time ambulance monitoring</p>
+                </div>
+
+                <span className="priority-badge">HIGH PRIORITY</span>
+                <button
+                  className="view-button"
+                  onClick={() =>
+                    stage === "idle" ? requestAmbulance() : resetEmergency()
+                  }
+                >
+                  {emergencyActive ? "End Emergency" : "Simulate Emergency"}
+                </button>
+                <button
+                  className="view-button"
+                  onClick={() =>
+                    setSelectedHospital(
+                      selectedHospital === "City General Hospital"
+                        ? "Metro Care Hospital"
+                        : "City General Hospital"
+                    )
+                  }
+                >
+                  Change Hospital
+                </button>
+              </div>
+
+              <div className="ambulance-info">
+                <div className="ambulance-title">
+                  <div className="ambulance-circle">
+                    <Ambulance size={26} />
+                  </div>
                   <div>
-                    <span>Destination</span>
-                    <strong>City General Hospital</strong>
+                    <h3>AMB-104</h3>
+                    <p>{stageLabel}</p>
                   </div>
                 </div>
-              </div>
 
-              <div className="eta-box">
-                <Clock size={20} />
-                <div>
-                  <span>Estimated Arrival</span>
-                  <strong>08 minutes</strong>
+                <div className="route">
+                  <div className="route-point">
+                    <MapPin size={18} />
+                    <div>
+                      <span>Current Location</span>
+                      <strong>Park Street</strong>
+                    </div>
+                  </div>
+
+                  <div className="route-line"></div>
+
+                  <div className="route-point">
+                    <Hospital size={18} />
+                    <div>
+                      <span>Destination</span>
+                      <strong>{selectedHospital}</strong>
+                    </div>
+                  </div>
+                  <div className="recommended-route">
+                    <span>Recommended Route</span>
+                    <strong>{recommendedRoute.name}</strong>
+                  </div>
+                </div>
+
+                <div className="eta-box">
+                  <Clock size={20} />
+                  <div>
+                    <span>Estimated Arrival</span>
+                    <strong>
+                      {["arrived", "reserved", "accepted"].includes(stage)
+                        ? "Arrived"
+                        : `${recommendedRoute.eta} minutes`}
+                    </strong>
+                    <span>Traffic: {recommendedRoute.traffic}%</span>
+                    <span>Signals: {recommendedRoute.signals}</span>
+                  </div>
+                </div>
+
+                <div className="driver-controls">
+                  <button
+                    className="view-button"
+                    onClick={startNavigation}
+                    disabled={stage !== "assigned"}
+                  >
+                    ▶ Start Navigation
+                  </button>
+                  <button
+                    className="view-button"
+                    onClick={markArrived}
+                    disabled={stage !== "enroute"}
+                  >
+                    Mark Arrived
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Traffic */}
-          <div className="panel">
-            <div className="panel-header">
-              <div>
-                <h2>Traffic Status</h2>
-                <p>Emergency route monitoring</p>
+            {/* Live green-corridor simulation */}
+            {emergencyActive && (
+              <div className="panel" style={{ gridColumn: "1 / -1" }}>
+                <div className="panel-header">
+                  <div>
+                    <h2>Live Corridor Simulation</h2>
+                    <p>Ambulance movement with automated signal priority</p>
+                  </div>
+                </div>
+                <LiveCorridorMap
+                  distanceKm={recommendedRoute.distance}
+                  etaMin={recommendedRoute.eta}
+                  to={selectedHospital}
+                />
+              </div>
+            )}
+
+            {/* Traffic */}
+            <div className="panel">
+              <div className="panel-header">
+                <div>
+                  <h2>Traffic Status</h2>
+                  <p>Emergency route monitoring</p>
+                  <button className="view-button" onClick={simulateTrafficUpdate}>
+                    Update Traffic
+                  </button>
+                </div>
+              </div>
+
+              <div className="traffic-list">
+                {analyzedRoutes.map((route) => (
+                  <div className="traffic-item" key={route.id}>
+                    <div>
+                      <strong>{route.name}</strong>
+                      <span>{route.distance} km → Hospital</span>
+                    </div>
+
+                    <span
+                      className={
+                        route.traffic < 30
+                          ? "traffic-clear"
+                          : route.traffic < 60
+                          ? "traffic-medium"
+                          : "traffic-heavy"
+                      }
+                    >
+                      {route.traffic < 30
+                        ? "CLEAR"
+                        : route.traffic < 60
+                        ? "MEDIUM"
+                        : "HEAVY"}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
-
-            <div className="traffic-list">
-              <div className="traffic-item">
+          </section>
+          </>
+        )}
+        {role === "hospital" && (
+          <section className="dashboard-grid">
+            <div className="panel emergency-panel">
+              <div className="panel-header">
                 <div>
-                  <strong>Route A</strong>
-                  <span>Park Street → Hospital</span>
+                  <h2>{selectedHospital}</h2>
+                  <p>Emergency Status: 🟢 ONLINE</p>
                 </div>
-                <span className="traffic-clear">CLEAR</span>
               </div>
 
-              <div className="traffic-item">
-                <div>
-                  <strong>Route B</strong>
-                  <span>Esplanade → Hospital</span>
-                </div>
-                <span className="traffic-medium">MEDIUM</span>
-              </div>
+              <div className="ambulance-info">
+                {emergencyActive ? (
+                  <>
+                    <div className="ambulance-title">
+                      <div className="ambulance-circle">
+                        <Ambulance size={26} />
+                      </div>
+                      <div>
+                        <h3>AMB-104</h3>
+                        <p>Emergency Patient — {stageLabel}</p>
+                      </div>
+                    </div>
 
-              <div className="traffic-item">
-                <div>
-                  <strong>Route C</strong>
-                  <span>Sealdah → Hospital</span>
-                </div>
-                <span className="traffic-heavy">HEAVY</span>
+                    <div className="eta-box">
+                      <Clock size={20} />
+                      <div>
+                        <span>Route</span>
+                        <strong>{recommendedRoute.name}</strong>
+                        <span>
+                          {["arrived", "reserved", "accepted"].includes(stage)
+                            ? "Arrived"
+                            : `ETA: ${recommendedRoute.eta} minutes`}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="driver-controls">
+                      <button
+                        className="view-button"
+                        onClick={reserveBed}
+                        disabled={stage !== "arrived"}
+                      >
+                        {["reserved", "accepted"].includes(stage)
+                          ? "🟢 Bed Reserved"
+                          : "Reserve Bed"}
+                      </button>
+                      <button
+                        className="view-button"
+                        onClick={acceptAmbulance}
+                        disabled={stage !== "reserved"}
+                      >
+                        {stage === "accepted" ? "✓ Accepted" : "Accept Ambulance"}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <p>No incoming ambulances right now.</p>
+                )}
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
-        {/* Hospital Status */}
+        {/* Hospital Status table — visible for every role */}
         <section className="panel hospital-panel">
           <div className="panel-header">
             <div>
               <h2>Hospital Availability</h2>
               <p>Live emergency resource status</p>
             </div>
-
-            <button className="view-button">
-              View All
-            </button>
+            <button className="view-button">View All</button>
           </div>
 
           <div className="hospital-table">
@@ -241,14 +538,14 @@ function App() {
             <div className="table-row">
               <span>City General Hospital</span>
               <span>Available</span>
-              <span>12</span>
+              <span>{selectedHospital === "City General Hospital" ? beds : 12}</span>
               <span className="available">ONLINE</span>
             </div>
 
             <div className="table-row">
               <span>Metro Care Hospital</span>
               <span>Available</span>
-              <span>08</span>
+              <span>{selectedHospital === "Metro Care Hospital" ? beds : 8}</span>
               <span className="available">ONLINE</span>
             </div>
 
@@ -261,18 +558,27 @@ function App() {
           </div>
         </section>
 
-        {/* Alert */}
-        <div className="alert">
-          <AlertTriangle size={22} />
-          <div>
-            <strong>Emergency Alert</strong>
-            <p>
-              AMB-104 has requested traffic priority on Route A.
-              Traffic signal coordination required.
-            </p>
+        {/* Alert — driver + hospital only, once emergency is live */}
+        {emergencyActive && role !== "user" && (
+          <div className="alert">
+            <AlertTriangle size={22} />
+            <div>
+              <strong>Emergency Alert</strong>
+              <p>
+                AMB-104 has requested traffic priority on {recommendedRoute.name}.
+                {signalPriority
+                  ? " Traffic signals are being prioritized."
+                  : " Traffic signal coordination required."}
+              </p>
+              <button
+                className="view-button"
+                onClick={() => setSignalPriority(!signalPriority)}
+              >
+                {signalPriority ? "Signal Priority Active" : "Request Signal Priority"}
+              </button>
+            </div>
           </div>
-        </div>
-
+        )}
       </main>
     </div>
   );

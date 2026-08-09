@@ -1,0 +1,148 @@
+.route-eval {
+  background: #0b1220;
+  border: 1px solid #1e2a3f;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.route-eval-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #38bdf8;
+  margin-bottom: 8px;
+}
+
+.route-eval-header h2 {
+  color: white;
+  font-size: 20px;
+  margin: 0 0 6px;
+}
+
+.route-eval-header p {
+  color: #94a3b8;
+  font-size: 13px;
+  max-width: 560px;
+  margin: 0 0 20px;
+}
+
+.route-eval-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.route-eval-card {
+  position: relative;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.route-eval-card.recommended {
+  border-color: #22c55e;
+  background: #0f1e17;
+}
+
+.route-eval-card.selected {
+  box-shadow: 0 0 0 2px #22c55e;
+}
+
+.route-eval-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #14532d;
+  color: #4ade80;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 4px 8px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+
+.route-eval-card h3 {
+  color: white;
+  font-size: 15px;
+  margin: 0 0 12px;
+}
+
+.route-eval-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.route-eval-stats span {
+  display: block;
+  font-size: 10px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 2px;
+}
+
+.route-eval-stats strong {
+  font-size: 14px;
+  color: #e2e8f0;
+}
+
+.tone-clear { color: #4ade80; }
+.tone-medium { color: #facc15; }
+.tone-heavy { color: #f87171; }
+
+.route-eval-select {
+  width: 100%;
+  padding: 8px 0;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.route-eval-select.selected {
+  background: #16a34a;
+  border-color: #16a34a;
+  color: white;
+}
+
+.route-eval-insight {
+  display: flex;
+  gap: 12px;
+  background: #111827;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.route-eval-insight svg {
+  color: #facc15;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.route-eval-insight strong {
+  display: block;
+  color: white;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.route-eval-insight p {
+  color: #94a3b8;
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.5;
+}

@@ -468,3 +468,82 @@ nav {
     grid-template-columns: 1fr;
   }
 }
+/* Add this to the bottom of your existing App.css */
+
+.role-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 16px 0 20px;
+}
+
+.role-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.role-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.role-item.active {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.role-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1e293b;
+  color: #cbd5e1;
+  flex-shrink: 0;
+}
+
+.role-item.active .role-avatar {
+  background: #dc2626;
+  color: white;
+}
+
+.role-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.role-text strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: inherit;
+}
+
+.role-text small {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.role-item.active .role-text small {
+  color: #94a3b8;
+}
+
+/* Shrink the dashboard-title heading so it doesn't compete with the role list */
+.sidebar h5 {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 4px 0 0;
+}

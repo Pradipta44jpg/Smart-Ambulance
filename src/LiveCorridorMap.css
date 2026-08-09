@@ -1,0 +1,220 @@
+.corridor-map {
+  position: relative;
+  background: #0b1220;
+  border: 1px solid #1e2a3f;
+  border-radius: 16px;
+  overflow: hidden;
+  padding: 16px;
+}
+
+.corridor-hud {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 2;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid #1e2a3f;
+  border-radius: 12px;
+  padding: 14px 16px;
+  min-width: 220px;
+}
+
+.hud-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.hud-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+}
+
+.hud-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.hud-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hud-stat span {
+  font-size: 10px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.hud-stat strong {
+  font-size: 18px;
+  color: #38bdf8;
+}
+
+.hud-eta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #1e2a3f;
+  padding-top: 10px;
+}
+
+.hud-eta span {
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.hud-eta strong {
+  font-size: 15px;
+  color: #facc15;
+}
+
+.corridor-svg {
+  width: 100%;
+  height: 420px;
+  display: block;
+}
+
+.corridor-route {
+  fill: none;
+  stroke: #1e293b;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.corridor-route-progress {
+  fill: none;
+  stroke: #22c55e;
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.05s linear;
+}
+
+.corridor-start {
+  fill: #38bdf8;
+  stroke: #0b1220;
+  stroke-width: 3;
+}
+
+.corridor-label {
+  fill: #94a3b8;
+  font-size: 12px;
+}
+
+.corridor-hospital {
+  fill: #16a34a;
+  stroke: #4ade80;
+  stroke-width: 2;
+}
+
+.corridor-hospital-icon {
+  fill: white;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.corridor-hospital-label {
+  fill: #4ade80;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.signal-box {
+  fill: #0f172a;
+  stroke: #334155;
+  stroke-width: 1.5;
+}
+
+.signal-red {
+  fill: #ef4444;
+}
+
+.signal-green {
+  fill: #22c55e;
+}
+
+.ambulance-marker .ambulance-pulse {
+  fill: #f43f5e;
+  opacity: 0.35;
+}
+
+.ambulance-marker .ambulance-dot {
+  fill: #f43f5e;
+  stroke: white;
+  stroke-width: 2;
+}
+
+.corridor-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.corridor-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.corridor-btn:hover {
+  border-color: #475569;
+}
+
+.corridor-btn.primary {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: white;
+}
+
+.corridor-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.speed-group {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  background: #0f172a;
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.speed-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.speed-btn.active {
+  background: #2563eb;
+  color: white;
+}
